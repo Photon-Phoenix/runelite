@@ -43,6 +43,9 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL32;
+import org.lwjgl.opengl.GL43;
 
 public class ShaderTest
 {
@@ -50,7 +53,7 @@ public class ShaderTest
 		"void main() {" +
 		"       gl_Position = vec4(1.0, 1.0, 1.0, 1.0);" +
 		"}";
-	private GL4 gl;
+	private GL43 gl;
 
 	@Before
 	public void before()
@@ -82,15 +85,14 @@ public class ShaderTest
 			fail("error making context current");
 		}
 
-		gl = glContext.getGL().getGL4();
 	}
 
 	@Test
 	@Ignore
 	public void testUnordered() throws ShaderException
 	{
-		int glComputeProgram = gl.glCreateProgram();
-		int glComputeShader = gl.glCreateShader(gl.GL_COMPUTE_SHADER);
+		int glComputeProgram = GL20.glCreateProgram();
+		int glComputeShader = GL20.glCreateShader(GL43.GL_COMPUTE_SHADER);
 		try
 		{
 			Function<String, String> func = (s) -> inputStreamToString(getClass().getResourceAsStream(s));
@@ -107,8 +109,8 @@ public class ShaderTest
 		}
 		finally
 		{
-			gl.glDeleteShader(glComputeShader);
-			gl.glDeleteProgram(glComputeProgram);
+			GL20.glDeleteShader(glComputeShader);
+			GL20.glDeleteProgram(glComputeProgram);
 		}
 	}
 
@@ -116,8 +118,8 @@ public class ShaderTest
 	@Ignore
 	public void testSmall() throws ShaderException
 	{
-		int glComputeProgram = gl.glCreateProgram();
-		int glComputeShader = gl.glCreateShader(gl.GL_COMPUTE_SHADER);
+		int glComputeProgram = GL20.glCreateProgram();
+		int glComputeShader = GL20.glCreateShader(GL43.GL_COMPUTE_SHADER);
 		try
 		{
 			Function<String, String> func = (s) -> inputStreamToString(getClass().getResourceAsStream(s));
@@ -134,8 +136,8 @@ public class ShaderTest
 		}
 		finally
 		{
-			gl.glDeleteShader(glComputeShader);
-			gl.glDeleteProgram(glComputeProgram);
+			GL20.glDeleteShader(glComputeShader);
+			GL20.glDeleteProgram(glComputeProgram);
 		}
 	}
 
@@ -143,8 +145,8 @@ public class ShaderTest
 	@Ignore
 	public void testComp() throws ShaderException
 	{
-		int glComputeProgram = gl.glCreateProgram();
-		int glComputeShader = gl.glCreateShader(gl.GL_COMPUTE_SHADER);
+		int glComputeProgram = GL20.glCreateProgram();
+		int glComputeShader = GL20.glCreateShader(GL43.GL_COMPUTE_SHADER);
 		try
 		{
 			Function<String, String> func = (s) -> inputStreamToString(getClass().getResourceAsStream(s));
@@ -161,8 +163,8 @@ public class ShaderTest
 		}
 		finally
 		{
-			gl.glDeleteShader(glComputeShader);
-			gl.glDeleteProgram(glComputeProgram);
+			GL20.glDeleteShader(glComputeShader);
+			GL20.glDeleteProgram(glComputeProgram);
 		}
 	}
 
@@ -170,10 +172,10 @@ public class ShaderTest
 	@Ignore
 	public void testGeom() throws ShaderException
 	{
-		int glComputeProgram = gl.glCreateProgram();
-		int glVertexShader = gl.glCreateShader(gl.GL_VERTEX_SHADER);
-		int glGeometryShader = gl.glCreateShader(gl.GL_GEOMETRY_SHADER);
-		int glFragmentShader = gl.glCreateShader(gl.GL_FRAGMENT_SHADER);
+		int glComputeProgram = GL20.glCreateProgram();
+		int glVertexShader = GL20.glCreateShader(GL20.GL_VERTEX_SHADER);
+		int glGeometryShader = GL20.glCreateShader(GL32.GL_GEOMETRY_SHADER);
+		int glFragmentShader = GL20.glCreateShader(GL20.GL_FRAGMENT_SHADER);
 		try
 		{
 			Function<String, String> func = (s) -> inputStreamToString(getClass().getResourceAsStream(s));
@@ -190,10 +192,10 @@ public class ShaderTest
 		}
 		finally
 		{
-			gl.glDeleteShader(glVertexShader);
-			gl.glDeleteShader(glGeometryShader);
-			gl.glDeleteShader(glFragmentShader);
-			gl.glDeleteProgram(glComputeProgram);
+			GL20.glDeleteShader(glVertexShader);
+			GL20.glDeleteShader(glGeometryShader);
+			GL20.glDeleteShader(glFragmentShader);
+			GL20.glDeleteProgram(glComputeProgram);
 		}
 	}
 }

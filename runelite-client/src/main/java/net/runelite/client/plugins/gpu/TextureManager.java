@@ -24,7 +24,12 @@
  */
 package net.runelite.client.plugins.gpu;
 
-import com.jogamp.opengl.GL4;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL42;
+import org.lwjgl.opengl.GL43;
 import java.nio.ByteBuffer;
 import javax.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +46,7 @@ class TextureManager
 	private static final int SMALL_TEXTURE_SIZE = 64;
 	private static final int TEXTURE_SIZE = 128;
 
-	int initTextureArray(TextureProvider textureProvider, GL4 gl)
+	int initTextureArray(TextureProvider textureProvider, GL43 gl)
 	{
 		if (!allTexturesLoaded(textureProvider))
 		{
@@ -51,13 +56,13 @@ class TextureManager
 		Texture[] textures = textureProvider.getTextures();
 
 		int textureArrayId = GLUtil.glGenTexture(gl);
-		gl.glBindTexture(gl.GL_TEXTURE_2D_ARRAY, textureArrayId);
-		gl.glTexStorage3D(gl.GL_TEXTURE_2D_ARRAY, 1, gl.GL_RGBA8, TEXTURE_SIZE, TEXTURE_SIZE, textures.length);
+		GL11.glBindTexture(GL30.GL_TEXTURE_2D_ARRAY, textureArrayId);
+		GL42.glTexStorage3D(GL30.GL_TEXTURE_2D_ARRAY, 1, GL11.GL_RGBA8, TEXTURE_SIZE, TEXTURE_SIZE, textures.length);
 
-		gl.glTexParameteri(gl.GL_TEXTURE_2D_ARRAY, gl.GL_TEXTURE_MIN_FILTER, gl.GL_NEAREST);
-		gl.glTexParameteri(gl.GL_TEXTURE_2D_ARRAY, gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST);
+		GL11.glTexParameteri(GL30.GL_TEXTURE_2D_ARRAY, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
+		GL11.glTexParameteri(GL30.GL_TEXTURE_2D_ARRAY, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
 
-		gl.glTexParameteri(gl.GL_TEXTURE_2D_ARRAY, gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP_TO_EDGE);
+		GL11.glTexParameteri(GL30.GL_TEXTURE_2D_ARRAY, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
 
 		// Set brightness to 1.0d to upload unmodified textures to GPU
 		double save = textureProvider.getBrightness();
@@ -67,14 +72,14 @@ class TextureManager
 
 		textureProvider.setBrightness(save);
 
-		gl.glActiveTexture(gl.GL_TEXTURE1);
-		gl.glBindTexture(gl.GL_TEXTURE_2D_ARRAY, textureArrayId);
-		gl.glActiveTexture(gl.GL_TEXTURE0);
+		GL13.glActiveTexture(GL13.GL_TEXTURE1);
+		GL11.glBindTexture(GL30.GL_TEXTURE_2D_ARRAY, textureArrayId);
+		GL13.glActiveTexture(GL13.GL_TEXTURE0);
 
 		return textureArrayId;
 	}
 
-	void freeTextureArray(GL4 gl, int textureArrayId)
+	void freeTextureArray(GL43 gl, int textureArrayId)
 	{
 		GLUtil.glDeleteTexture(gl, textureArrayId);
 	}
@@ -109,11 +114,11 @@ class TextureManager
 		return true;
 	}
 
-	private void updateTextures(TextureProvider textureProvider, GL4 gl, int textureArrayId)
+	private void updateTextures(TextureProvider textureProvider, GL43 gl, int textureArrayId)
 	{
 		Texture[] textures = textureProvider.getTextures();
 
-		gl.glBindTexture(gl.GL_TEXTURE_2D_ARRAY, textureArrayId);
+		GL11.glBindTexture(GL30.GL_TEXTURE_2D_ARRAY, textureArrayId);
 
 		int cnt = 0;
 		for (int textureId = 0; textureId < textures.length; textureId++)
@@ -133,8 +138,8 @@ class TextureManager
 				int srcSize = srcPixels.length == 4096 ? SMALL_TEXTURE_SIZE : TEXTURE_SIZE;
 				byte[] pixels = convertPixels(srcPixels, srcSize, srcSize, TEXTURE_SIZE, TEXTURE_SIZE);
 				ByteBuffer pixelBuffer = ByteBuffer.wrap(pixels);
-				gl.glTexSubImage3D(gl.GL_TEXTURE_2D_ARRAY, 0, 0, 0, textureId, TEXTURE_SIZE, TEXTURE_SIZE,
-					1, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, pixelBuffer);
+				GL12.glTexSubImage3D(GL30.GL_TEXTURE_2D_ARRAY, 0, 0, 0, textureId, TEXTURE_SIZE, TEXTURE_SIZE,
+					1, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixelBuffer);
 			}
 		}
 

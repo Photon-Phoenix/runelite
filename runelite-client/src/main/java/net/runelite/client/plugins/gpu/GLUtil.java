@@ -24,10 +24,16 @@
  */
 package net.runelite.client.plugins.gpu;
 
-import com.jogamp.opengl.GL4;
 import java.io.InputStream;
+import java.nio.IntBuffer;
+import java.nio.ByteBuffer;
 import java.util.Scanner;
 import lombok.extern.slf4j.Slf4j;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL43;
 
 @Slf4j
 class GLUtil
@@ -36,101 +42,101 @@ class GLUtil
 
 	private static final int[] buf = new int[1];
 
-	static int glGetInteger(GL4 gl, int pname)
+	public static int glGetInteger(GL43 gl, int pname)
 	{
-		gl.glGetIntegerv(pname, buf, 0);
+		GL11.glGetIntegerv(pname, IntBuffer.wrap(buf));
 		return buf[0];
 	}
 
-	static int glGetShader(GL4 gl, int shader, int pname)
+	static int glGetShader(GL43 gl, int shader, int pname)
 	{
-		gl.glGetShaderiv(shader, pname, buf, 0);
+		GL20.glGetShaderiv(shader, pname, IntBuffer.wrap(buf));
 		assert buf[0] > -1;
 		return buf[0];
 	}
 
-	static int glGetProgram(GL4 gl, int program, int pname)
+	static int glGetProgram(GL43 gl, int program, int pname)
 	{
-		gl.glGetProgramiv(program, pname, buf, 0);
+		GL20.glGetProgramiv(program, pname, IntBuffer.wrap(buf));
 		assert buf[0] > -1;
 		return buf[0];
 	}
 
-	static String glGetShaderInfoLog(GL4 gl, int shader)
+	static String glGetShaderInfoLog(GL43 gl, int shader)
 	{
 		byte[] err = new byte[ERR_LEN];
-		gl.glGetShaderInfoLog(shader, ERR_LEN, buf, 0, err, 0);
+		GL20.glGetShaderInfoLog(shader, IntBuffer.wrap(buf, 0, ERR_LEN), ByteBuffer.wrap(err));
 		return new String(err);
 	}
 
-	static String glGetProgramInfoLog(GL4 gl, int program)
+	static String glGetProgramInfoLog(GL43 gl, int program)
 	{
 		byte[] err = new byte[ERR_LEN];
-		gl.glGetProgramInfoLog(program, ERR_LEN, buf, 0, err, 0);
+		GL20.glGetProgramInfoLog(program, IntBuffer.wrap(buf, 0, ERR_LEN), ByteBuffer.wrap(err));
 		return new String(err);
 	}
 
-	static int glGenVertexArrays(GL4 gl)
+	static int glGenVertexArrays(GL43 gl)
 	{
-		gl.glGenVertexArrays(1, buf, 0);
+		GL30.glGenVertexArrays(IntBuffer.wrap(buf));
 		return buf[0];
 	}
 
-	static void glDeleteVertexArrays(GL4 gl, int vertexArray)
+	static void glDeleteVertexArrays(GL43 gl, int vertexArray)
 	{
 		buf[0] = vertexArray;
-		gl.glDeleteVertexArrays(1, buf, 0);
+		GL30.glDeleteVertexArrays(IntBuffer.wrap(buf));
 	}
 
-	static int glGenBuffers(GL4 gl)
+	static int glGenBuffers(GL43 gl)
 	{
-		gl.glGenBuffers(1, buf, 0);
+		GL15.glGenBuffers(IntBuffer.wrap(buf));
 		return buf[0];
 	}
 
-	static void glDeleteBuffer(GL4 gl, int buffer)
+	static void glDeleteBuffer(GL43 gl, int buffer)
 	{
 		buf[0] = buffer;
-		gl.glDeleteBuffers(1, buf, 0);
+		GL15.glDeleteBuffers(IntBuffer.wrap(buf));
 	}
 
-	static int glGenTexture(GL4 gl)
+	static int glGenTexture(GL43 gl)
 	{
-		gl.glGenTextures(1, buf, 0);
+		GL11.glGenTextures(IntBuffer.wrap(buf));
 		return buf[0];
 	}
 
-	static void glDeleteTexture(GL4 gl, int texture)
+	static void glDeleteTexture(GL43 gl, int texture)
 	{
 		buf[0] = texture;
-		gl.glDeleteTextures(1, buf, 0);
+		GL11.glDeleteTextures(IntBuffer.wrap(buf));
 	}
 
-	static int glGenFrameBuffer(GL4 gl)
+	static int glGenFrameBuffer(GL43 gl)
 	{
-		gl.glGenFramebuffers(1, buf, 0);
+		GL30.glGenFramebuffers(IntBuffer.wrap(buf));
 		return buf[0];
 	}
 
-	static void glDeleteFrameBuffer(GL4 gl, int frameBuffer)
+	static void glDeleteFrameBuffer(GL43 gl, int frameBuffer)
 	{
 		buf[0] = frameBuffer;
-		gl.glDeleteFramebuffers(1, buf, 0);
+		GL30.glDeleteFramebuffers(IntBuffer.wrap(buf));
 	}
 
-	static int glGenRenderbuffer(GL4 gl)
+	static int glGenRenderbuffer(GL43 gl)
 	{
-		gl.glGenRenderbuffers(1, buf, 0);
+		GL30.glGenRenderbuffers(IntBuffer.wrap(buf));
 		return buf[0];
 	}
 
-	static void glDeleteRenderbuffers(GL4 gl, int renderBuffer)
+	static void glDeleteRenderbuffers(GL43 gl, int renderBuffer)
 	{
 		buf[0] = renderBuffer;
-		gl.glDeleteRenderbuffers(1, buf, 0);
+		GL30.glDeleteRenderbuffers(IntBuffer.wrap(buf));
 	}
 
-	static void loadShaders(GL4 gl, int glProgram, int glVertexShader, int glGeometryShader, int glFragmentShader,
+	static void loadShaders(GL43 gl, int glProgram, int glVertexShader, int glGeometryShader, int glFragmentShader,
 							String vertexShaderStr, String geomShaderStr, String fragShaderStr) throws ShaderException
 	{
 		compileAndAttach(gl, glProgram, glVertexShader, vertexShaderStr);
@@ -142,52 +148,52 @@ class GLUtil
 
 		compileAndAttach(gl, glProgram, glFragmentShader, fragShaderStr);
 
-		gl.glLinkProgram(glProgram);
+		GL20.glLinkProgram(glProgram);
 
-		if (glGetProgram(gl, glProgram, gl.GL_LINK_STATUS) == gl.GL_FALSE)
+		if (glGetProgram(gl, glProgram, GL20.GL_LINK_STATUS) == GL11.GL_FALSE)
 		{
 			String err = glGetProgramInfoLog(gl, glProgram);
 			throw new ShaderException(err);
 		}
 
-		gl.glValidateProgram(glProgram);
+		GL20.glValidateProgram(glProgram);
 
-		if (glGetProgram(gl, glProgram, gl.GL_VALIDATE_STATUS) == gl.GL_FALSE)
+		if (glGetProgram(gl, glProgram, GL20.GL_VALIDATE_STATUS) == GL11.GL_FALSE)
 		{
 			String err = glGetProgramInfoLog(gl, glProgram);
 			throw new ShaderException(err);
 		}
 	}
 
-	static void loadComputeShader(GL4 gl, int glProgram, int glComputeShader, String str) throws ShaderException
+	static void loadComputeShader(GL43 gl, int glProgram, int glComputeShader, String str) throws ShaderException
 	{
 		compileAndAttach(gl, glProgram, glComputeShader, str);
 
-		gl.glLinkProgram(glProgram);
+		GL20.glLinkProgram(glProgram);
 
-		if (glGetProgram(gl, glProgram, gl.GL_LINK_STATUS) == gl.GL_FALSE)
+		if (glGetProgram(gl, glProgram, GL20.GL_LINK_STATUS) == GL11.GL_FALSE)
 		{
 			String err = glGetProgramInfoLog(gl, glProgram);
 			throw new ShaderException(err);
 		}
 
-		gl.glValidateProgram(glProgram);
+		GL20.glValidateProgram(glProgram);
 
-		if (glGetProgram(gl, glProgram, gl.GL_VALIDATE_STATUS) == gl.GL_FALSE)
+		if (glGetProgram(gl, glProgram, GL20.GL_VALIDATE_STATUS) == GL11.GL_FALSE)
 		{
 			String err = glGetProgramInfoLog(gl, glProgram);
 			throw new ShaderException(err);
 		}
 	}
 
-	private static void compileAndAttach(GL4 gl, int program, int shader, String source) throws ShaderException
+	private static void compileAndAttach(GL43 gl, int program, int shader, String source) throws ShaderException
 	{
-		gl.glShaderSource(shader, 1, new String[]{source}, null);
-		gl.glCompileShader(shader);
+		GL20.glShaderSource(shader, new String[]{source});
+		GL20.glCompileShader(shader);
 
-		if (glGetShader(gl, shader, gl.GL_COMPILE_STATUS) == gl.GL_TRUE)
+		if (glGetShader(gl, shader, GL20.GL_COMPILE_STATUS) == GL11.GL_TRUE)
 		{
-			gl.glAttachShader(program, shader);
+			GL20.glAttachShader(program, shader);
 		}
 		else
 		{
